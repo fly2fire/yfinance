@@ -33,6 +33,11 @@ try:
 except ImportError:
     import json as _json
 
+user_agents = [
+    'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.94 Safari/537.36',
+    'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+]
+
 
 def empty_df(index=[]):
     empty = _pd.DataFrame(index=index, data={
@@ -43,7 +48,9 @@ def empty_df(index=[]):
 
 
 def get_json(url, proxy=None):
-    html = _requests.get(url=url, proxies=proxy).text
+    head = {}
+    head['User-Agent'] = user_agents[0]
+    html = _requests.get(url=url, headers=head,proxies=proxy).text
 
     if "QuoteSummaryStore" not in html:
         html = _requests.get(url=url, proxies=proxy).text
@@ -162,7 +169,7 @@ def parse_actions(data, tz=None):
             if tz is not None:
                 splits.index = splits.index.tz_localize(tz)
             splits["Stock Splits"] = splits["numerator"] / \
-                splits["denominator"]
+                                     splits["denominator"]
             splits = splits["Stock Splits"]
 
     return dividends, splits
@@ -208,11 +215,11 @@ class ProgressBar:
         all_full = self.width - 2
         num_hashes = int(round((percent_done / 100.0) * all_full))
         self.prog_bar = '[' + self.fill_char * \
-            num_hashes + ' ' * (all_full - num_hashes) + ']'
+                        num_hashes + ' ' * (all_full - num_hashes) + ']'
         pct_place = (len(self.prog_bar) // 2) - len(str(percent_done))
         pct_string = '%d%%' % percent_done
         self.prog_bar = self.prog_bar[0:pct_place] + \
-            (pct_string + self.prog_bar[pct_place + len(pct_string):])
+                        (pct_string + self.prog_bar[pct_place + len(pct_string):])
 
     def __str__(self):
         return str(self.prog_bar)

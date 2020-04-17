@@ -275,10 +275,6 @@ class TickerBase():
         if self._fundamentals:
             return
 
-        # get info and sustainability
-        url = '%s/%s' % (self._scrape_url, self.ticker)
-        data = utils.get_json(url, proxy)
-
         # holders
         url = "{}/{}/holders".format(self._scrape_url, self.ticker)
         holders = _pd.read_html(url)
@@ -291,6 +287,9 @@ class TickerBase():
             self._institutional_holders['% Out'] = self._institutional_holders[
                 '% Out'].str.replace('%', '').astype(float)/100
 
+        # get info and sustainability
+        url = '%s/%s' % (self._scrape_url, self.ticker)
+        data = utils.get_json(url, proxy)
         # sustainability
         d = {}
         if isinstance(data.get('esgScores'), dict):
@@ -351,7 +350,8 @@ class TickerBase():
             pass
 
         # get fundamentals
-        data = utils.get_json(url+'/financials', proxy)
+        url = '%s/%s/cash-flow' % (self._scrape_url, self.ticker)
+        data = utils.get_json(url, proxy)
 
         # generic patterns
         for key in (
